@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Terminal - Keypad Sequence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --quantum-cyan: #00ffff;
+            --quantum-purple: #b388ff;
+            --quantum-pink: #ff4081;
+            --quantum-green: #00ff88;
+            --quantum-blue: #448aff;
+            --quantum-bg: #0a0e1a;
+            --quantum-surface: #151b2e;
+            --quantum-elevated: #1e2740;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background: var(--quantum-bg);
+            color: #ffffff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background Particles */
+        .quantum-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            background: radial-gradient(ellipse at center, #151b2e 0%, #0a0e1a 100%);
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--quantum-cyan);
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100px) translateX(100px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Glass Container */
+        .glass-container {
+            background: rgba(21, 27, 46, 0.4);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 255, 0.15);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05),
+                0 0 40px rgba(0, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .glass-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--quantum-cyan), transparent);
+            opacity: 0.5;
+        }
+
+        /* Typography */
+        .title-orbitron {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            background: linear-gradient(135deg, var(--quantum-cyan), var(--quantum-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.5));
+        }
+
+        .glow-text {
+            text-shadow: 
+                0 0 10px currentColor,
+                0 0 20px currentColor,
+                0 0 30px currentColor;
+        }
+
+        /* Symbol Buttons - Enhanced */
+        .symbol-btn {
+            position: relative;
+            background: rgba(30, 39, 64, 0.6);
+            border: 2px solid rgba(0, 255, 255, 0.2);
+            color: var(--quantum-cyan);
+            font-size: 2.5rem;
+            aspect-ratio: 1;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .symbol-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, var(--quantum-cyan), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .symbol-btn:hover:not(:disabled) {
+            transform: translateY(-4px) scale(1.05);
+            border-color: var(--quantum-cyan);
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 
+                0 0 20px rgba(0, 255, 255, 0.4),
+                0 10px 40px rgba(0, 0, 0, 0.3),
+                inset 0 0 20px rgba(0, 255, 255, 0.1);
+        }
+
+        .symbol-btn:hover::before {
+            opacity: 0.15;
+        }
+
+        .symbol-btn:active:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .symbol-btn.correct {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: var(--quantum-green);
+            color: var(--quantum-green);
+            animation: pulse-correct 0.6s ease-out;
+            pointer-events: none;
+        }
+
+        .symbol-btn.incorrect {
+            background: rgba(255, 64, 129, 0.2);
+            border-color: var(--quantum-pink);
+            color: var(--quantum-pink);
+            animation: shake-btn 0.4s cubic-bezier(.36,.07,.19,.97);
+            pointer-events: none;
+        }
+
+        @keyframes pulse-correct {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+            50% { box-shadow: 0 0 0 20px rgba(0, 255, 136, 0); }
+        }
+
+        @keyframes shake-btn {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        /* Control Button */
+        .control-btn {
+            position: relative;
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(179, 136, 255, 0.1));
+            border: 2px solid var(--quantum-cyan);
+            color: var(--quantum-cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.125rem;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .control-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(0, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .control-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .control-btn:hover {
+            background: var(--quantum-cyan);
+            color: var(--quantum-bg);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .control-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Info Panels */
+        .info-panel {
+            background: rgba(30, 39, 64, 0.4);
+            border: 1px solid rgba(0, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .timer-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--quantum-cyan);
+            text-shadow: 0 0 15px var(--quantum-cyan);
+        }
+
+        .timer-warning {
+            color: var(--quantum-pink);
+            animation: pulse-timer 1s infinite;
+        }
+
+        @keyframes pulse-timer {
+            0%, 100% { opacity: 1; text-shadow: 0 0 15px var(--quantum-pink); }
+            50% { opacity: 0.6; text-shadow: 0 0 25px var(--quantum-pink); }
+        }
+
+        /* Status Message */
+        .status-msg {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            min-height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-success {
+            color: var(--quantum-green);
+            animation: glow-pulse 0.8s ease-in-out;
+        }
+
+        .status-error {
+            color: var(--quantum-pink);
+            animation: shake-text 0.5s cubic-bezier(.36,.07,.19,.97);
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { text-shadow: 0 0 10px currentColor; }
+            50% { text-shadow: 0 0 30px currentColor, 0 0 50px currentColor; }
+        }
+
+        @keyframes shake-text {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Victory State */
+        .victory-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(0, 255, 255, 0.2), transparent);
+            backdrop-filter: blur(10px);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fade-in 0.5s ease-out;
+        }
+
+        .victory-content {
+            text-align: center;
+            animation: scale-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .victory-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--quantum-cyan), var(--quantum-purple), var(--quantum-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbow-shift 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 30px rgba(0, 255, 255, 0.8));
+        }
+
+        @keyframes scale-in {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        @keyframes rainbow-shift {
+            0%, 100% { filter: drop-shadow(0 0 30px rgba(0, 255, 255, 0.8)) hue-rotate(0deg); }
+            50% { filter: drop-shadow(0 0 40px rgba(179, 136, 255, 0.8)) hue-rotate(30deg); }
+        }
+
+        /* Picked Symbols Display */
+        .picked-display {
+            background: rgba(10, 14, 26, 0.8);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 3.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--quantum-cyan);
+            letter-spacing: 0.2em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title-orbitron { font-size: 1.5rem; }
+            .timer-display { font-size: 1.5rem; }
+            .symbol-btn { font-size: 2rem; }
+            .victory-title { font-size: 2.5rem; }
+        }
+
+        /* Fade In Animation */
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .fade-in-element {
+            animation: fade-in 0.6s ease-out;
+        }
+
+        /* Board Flash */
+        @keyframes board-flash {
+            0%, 100% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 40px rgba(0, 255, 255, 0.1); }
+            50% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 60px rgba(0, 255, 136, 0.4); }
+        }
+
+        .flash-success {
+            animation: board-flash 0.6s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="quantum-bg" id="bg-particles"></div>
+
+    <!-- Main Container -->
+    <div class="relative z-10 min-h-screen flex items-center justify-center p-4">
+        <div id="game-container" class="glass-container w-full max-w-3xl rounded-2xl p-8 space-y-6 fade-in-element">
+            
+            <!-- Header -->
+            <header class="flex flex-col md:flex-row justify-between items-center gap-4 pb-6 border-b border-cyan-500/20">
+                <h1 class="title-orbitron text-3xl md:text-4xl">QUANTUM TERMINAL</h1>
+                <div class="flex gap-4 items-center">
+                    <div class="info-panel text-center">
+                        <div class="text-xs text-cyan-400/60 uppercase tracking-wider mb-1">Mission</div>
+                        <div id="round-counter" class="font-bold text-lg">0/3</div>
+                    </div>
+                    <div class="info-panel text-center">
+                        <div class="text-xs text-cyan-400/60 uppercase tracking-wider mb-1">Time</div>
+                        <div id="timer-display" class="timer-display">--</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Game Board -->
+            <main class="space-y-6">
+                <div id="game-board" class="grid gap-4 transition-all duration-500">
+                    <!-- Symbol buttons injected here -->
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="space-y-4 pt-6 border-t border-cyan-500/20">
+                <div class="status-msg" id="status-message">
+                    <span>Initialize sequence to begin</span>
+                </div>
+                <div class="picked-display" id="picked-symbols">
+                    <span class="text-cyan-400/40">_ _ _ _</span>
+                </div>
+                <button id="start-button" class="control-btn w-full">
+                    <span>INITIALIZE SEQUENCE</span>
+                </button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Victory Overlay -->
+    <div id="victory-overlay" class="hidden"></div>
+
+    <script>
+        // Particle Background
+        function createParticles() {
+            const container = document.getElementById('bg-particles');
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                const size = Math.random() * 4 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDuration = `${Math.random() * 20 + 15}s`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Game Logic
+        const REFERENCE_ORDER = [
+            'Ω', 'ψ', 'λ', 'Φ', '★', '☯', 'Δ', '☮', 'Ψ', '∑', 
+            '∞', '⌘', '⍟', '✦', '✪', '✺', '⌖', '♢', '⊕', '⊗', 
+            '⚛', '⚜', '⚡', '✨', '☣', '☢', '⚙', '⚲', '⟁', '❖'
+        ];
+
+        const ROUNDS = [
+            { num: 1, symbols: 4, time: 60, cols: 'grid-cols-2' },
+            { num: 2, symbols: 6, time: 120, cols: 'grid-cols-3' },
+            { num: 3, symbols: 10, time: 180, cols: 'grid-cols-4 md:grid-cols-5' }
+        ];
+
+        const $ = (id) => document.getElementById(id);
+        const gameContainer = $('game-container');
+        const gameBoard = $('game-board');
+        const startBtn = $('start-button');
+        const roundCounter = $('round-counter');
+        const timerDisplay = $('timer-display');
+        const statusMessage = $('status-message');
+        const pickedSymbols = $('picked-symbols');
+        const victoryOverlay = $('victory-overlay');
+
+        let state = {
+            round: 0,
+            timer: null,
+            timeLeft: 0,
+            sequence: [],
+            input: [],
+            active: false
+        };
+
+        // Audio
+        let audioCtx;
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            console.warn('Web Audio not supported');
+        }
+
+        function playTone(freq, duration, type = 'sine') {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = type;
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playSound(type) {
+            switch(type) {
+                case 'click': playTone(440, 0.1); break;
+                case 'success': playTone(660, 0.3); setTimeout(() => playTone(880, 0.3), 150); break;
+                case 'fail': playTone(150, 0.4, 'sawtooth'); break;
+                case 'victory': 
+                    [523, 659, 784, 1046].forEach((f, i) => 
+                        setTimeout(() => playTone(f, 0.3), i * 150)
+                    );
+                    break;
+            }
+        }
+
+        function updateStatus(text, type = '') {
+            statusMessage.innerHTML = `<span class="${type}">${text}</span>`;
+        }
+
+        function updatePickedDisplay() {
+            if (state.input.length === 0) {
+                const placeholders = state.sequence.map(() => '_').join(' ');
+                pickedSymbols.innerHTML = `<span class="text-cyan-400/40">${placeholders}</span>`;
+            } else {
+                pickedSymbols.textContent = state.input.join(' ');
+            }
+        }
+
+        function renderBoard(symbols, cols) {
+            gameBoard.innerHTML = '';
+            gameBoard.className = `grid ${cols} gap-4`;
+            symbols.forEach((symbol, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'symbol-btn';
+                btn.textContent = symbol;
+                btn.style.animationDelay = `${i * 0.05}s`;
+                gameBoard.appendChild(btn);
+            });
+        }
+
+        function getRandomSymbols(count) {
+            return [...REFERENCE_ORDER].sort(() => Math.random() - 0.5).slice(0, count);
+        }
+
+        function startRound(index) {
+            if (index >= ROUNDS.length) {
+                winGame();
+                return;
+            }
+
+            state.round = index;
+            state.input = [];
+            const config = ROUNDS[index];
+            
+            const roundSymbols = getRandomSymbols(config.symbols);
+            state.sequence = [...roundSymbols].sort((a, b) => 
+                REFERENCE_ORDER.indexOf(a) - REFERENCE_ORDER.indexOf(b)
+            );
+
+            roundCounter.textContent = `${config.num}/3`;
+            updateStatus(`Mission ${config.num} - Decode sequence`, '');
+            updatePickedDisplay();
+            renderBoard(roundSymbols, config.cols);
+
+            state.timeLeft = config.time;
+            updateTimer();
+            clearInterval(state.timer);
+            state.timer = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            const mins = Math.floor(state.timeLeft / 60);
+            const secs = state.timeLeft % 60;
+            timerDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+            timerDisplay.className = state.timeLeft <= 10 ? 'timer-display timer-warning' : 'timer-display';
+            
+            if (state.timeLeft <= 0) {
+                failGame('TIME EXPIRED');
+            }
+            state.timeLeft--;
+        }
+
+        function handleClick(e) {
+            if (!state.active || e.target.tagName !== 'BUTTON') return;
+            const btn = e.target;
+            if (btn.classList.contains('correct') || btn.classList.contains('incorrect')) return;
+
+            playSound('click');
+            const symbol = btn.textContent;
+            state.input.push(symbol);
+            updatePickedDisplay();
+
+            const isCorrect = state.input.every((s, i) => s === state.sequence[i]);
+            
+            if (isCorrect) {
+                btn.classList.add('correct');
+                if (state.input.length === state.sequence.length) {
+                    successRound();
+                }
+            } else {
+                btn.classList.add('incorrect');
+                failGame('SEQUENCE ERROR');
+            }
+        }
+
+        function successRound() {
+            state.active = false;
+            clearInterval(state.timer);
+            playSound('success');
+            updateStatus('SEQUENCE VERIFIED', 'status-success');
+            gameContainer.classList.add('flash-success');
+            setTimeout(() => gameContainer.classList.remove('flash-success'), 600);
+            
+            setTimeout(() => {
+                state.active = true;
+                startRound(state.round + 1);
+            }, 1800);
+        }
+
+        function failGame(msg) {
+            state.active = false;
+            clearInterval(state.timer);
+            playSound('fail');
+            updateStatus(msg, 'status-error');
+            
+            setTimeout(() => {
+                gameBoard.innerHTML = '';
+                roundCounter.textContent = '0/3';
+                timerDisplay.textContent = '--';
+                updateStatus('Initialize sequence to begin', '');
+                pickedSymbols.innerHTML = '<span class="text-cyan-400/40">_ _ _ _</span>';
+                startBtn.innerHTML = '<span>INITIALIZE SEQUENCE</span>';
+            }, 2000);
+        }
+
+        function winGame() {
+            state.active = false;
+            clearInterval(state.timer);
+            playSound('victory');
+            gameBoard.innerHTML = '';
+            
+            victoryOverlay.className = 'victory-overlay';
+            victoryOverlay.innerHTML = `
+                <div class="victory-content">
+                    <div class="victory-title">MISSION COMPLETE</div>
+                    <div class="text-cyan-400 text-xl mt-4 font-mono">All sequences verified</div>
+                    <button onclick="resetToStart()" class="control-btn mt-8">
+                        <span>BACK TO START</span>
+                    </button>
+                </div>
+            `;
+            
+            updateStatus('SYSTEM ACCESS GRANTED', 'status-success');
+            roundCounter.textContent = 'CLEAR';
+            startBtn.innerHTML = '<span>RESTART MISSION</span>';
+        }
+
+        function resetToStart() {
+            victoryOverlay.className = 'hidden';
+            victoryOverlay.innerHTML = '';
+            gameBoard.innerHTML = '';
+            roundCounter.textContent = '0/3';
+            timerDisplay.textContent = '--';
+            updateStatus('Initialize sequence to begin', '');
+            pickedSymbols.innerHTML = '<span class="text-cyan-400/40">_ _ _ _</span>';
+            startBtn.innerHTML = '<span>INITIALIZE SEQUENCE</span>';
+            state.active = false;
+        }
+
+        function startGame() {
+            victoryOverlay.className = 'hidden';
+            victoryOverlay.innerHTML = '';
+            state.active = true;
+            startBtn.innerHTML = '<span>ABORT MISSION</span>';
+            startRound(0);
+        }
+
+        startBtn.addEventListener('click', startGame);
+        gameBoard.addEventListener('click', handleClick);
+    </script>
+</body>
+</html>
