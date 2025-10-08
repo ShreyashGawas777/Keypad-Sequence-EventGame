@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keypad Sequence</title>
+    
+    <!-- Tailwind CSS for rapid UI development -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts for the futuristic theme -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS for theme, animations, and glowing effects -->
+    <style>
+        /* Define theme colors and fonts as CSS variables for easy management */
+        :root {
+            --bg-color: #0b0e11;
+            --primary-color: #00ffc6;
+            --accent-color: #ff007a;
+            --text-color: #e0e0e0;
+            --font-primary: 'Orbitron', sans-serif;
+            --font-secondary: 'Roboto Mono', monospace;
+        }
+
+        /* Base body styling */
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-secondary);
+            overflow: hidden; /* Prevent scrollbars from appearing during animations */
+        }
+
+        /* Custom glow effect class */
+        .glow {
+            text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color), 0 0 15px var(--primary-color);
+        }
+
+        /* Styling for the main game container */
+        .game-console {
+            background-color: rgba(14, 21, 29, 0.8);
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 20px rgba(0, 255, 198, 0.3), inset 0 0 15px rgba(0, 255, 198, 0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Symbol button styling */
+        .symbol-button {
+            background-color: rgba(0, 255, 198, 0.1);
+            border: 2px solid var(--primary-color);
+            font-family: var(--font-primary);
+            color: var(--primary-color);
+            text-shadow: 0 0 8px var(--primary-color);
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 0 10px rgba(0, 255, 198, 0.3), inset 0 0 5px rgba(0, 255, 198, 0.2);
+        }
+
+        /* Hover and focus effects for symbol buttons */
+        .symbol-button:hover, .symbol-button:focus {
+            background-color: rgba(0, 255, 198, 0.25);
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 0 20px var(--primary-color);
+            outline: none;
+        }
+
+        /* Active (pressed) state for symbol buttons */
+        .symbol-button:active {
+            transform: scale(0.98);
+            background-color: rgba(0, 255, 198, 0.4);
+        }
+        
+        /* Disabled state for symbol buttons */
+        .symbol-button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            background-color: rgba(128, 128, 128, 0.1);
+            border-color: #555;
+            color: #555;
+            text-shadow: none;
+            box-shadow: none;
+        }
+
+        /* Primary button styling (Start/Restart) */
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+            font-family: var(--font-primary);
+            border: 2px solid var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: transparent;
+            color: var(--accent-color);
+            transform: scale(1.05);
+        }
+        
+        /* Keyframe animation for a "shake" effect on failure */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        /* Keyframe animation for a "flash" effect on success */
+        @keyframes flash {
+            0%, 100% { background-color: var(--bg-color); }
+            50% { background-color: rgba(0, 255, 198, 0.2); }
+        }
+
+        .flash {
+            animation: flash 0.3s ease-out;
+        }
+        
+        /* Keyframe animation for the victory banner */
+        @keyframes fadeInScaleUp {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .victory-animation {
+            animation: fadeInScaleUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- Main game container -->
+    <div id="gameConsole" class="game-console w-full max-w-2xl rounded-2xl p-6 md:p-8 space-y-6">
+
+        <!-- Header Section -->
+        <header class="flex flex-col sm:flex-row justify-between items-center gap-4 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold glow" style="font-family: var(--font-primary);">KEYPAD SEQUENCE</h1>
+            <div class="flex items-center justify-center gap-6 text-lg">
+                <div id="roundCounter" class="font-bold">Round 1/3</div>
+                <div id="timerDisplay" class="font-bold bg-black bg-opacity-25 px-4 py-1 rounded-md border border-gray-600">
+                    <span id="timerValue">30</span>s
+                </div>
+            </div>
+        </header>
+
+        <!-- Game Board Section -->
+        <main>
+            <div id="gameBoard" class="grid gap-4 transition-all duration-300">
+                <!-- Symbol buttons will be dynamically inserted here -->
+            </div>
+        </main>
+
+        <!-- Footer and Controls Section -->
+        <footer class="space-y-4">
+            <!-- Start/Restart Button -->
+            <div class="flex justify-center">
+                 <button id="startButton" class="btn-primary px-8 py-3 rounded-lg text-xl uppercase tracking-widest">Start Game</button>
+            </div>
+            
+            <!-- Message and Sequence Preview Area -->
+            <div class="h-16 text-center flex flex-col items-center justify-center space-y-2 p-2 rounded-md bg-black bg-opacity-25 border border-gray-700">
+                <p id="statusMessage" class="text-lg font-bold">&nbsp;</p> <!-- Non-breaking space to maintain height -->
+                <div id="pickedSymbols" class="text-2xl text-gray-400 tracking-widest" style="font-family: var(--font-primary);"></div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Victory Modal -->
+    <div id="victoryModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
+        <div class="text-center victory-animation">
+            <h2 class="text-6xl md:text-8xl font-bold glow" style="font-family: var(--font-primary); color: var(--primary-color);">MISSION COMPLETE</h2>
+            <p class="text-xl mt-4">You successfully bypassed the system.</p>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONFIGURATION ---
+            const REFERENCE_ORDER = ['Ω', 'ψ', 'λ', 'Φ', '★', '☯', 'Δ', '☮', 'Ψ', '∑', '∞', '⌘', '⍟', '✦', '✪', '✺', '⌖', '♢', '⊕', '⊗', '⚛', '⚜', '⚡', '✨', '☣', '☢', '⚙', '⚲', '⟁', '✦'];
+            const ROUNDS_CONFIG = [
+                { number: 1, symbols: 4, timer: 60, gridCols: 'grid-cols-2' },
+                { number: 2, symbols: 6, timer: 120, gridCols: 'grid-cols-3' },
+                { number: 3, symbols: 10, timer: 180, gridCols: 'grid-cols-5' },
+            ];
+            
+            // --- DOM ELEMENTS ---
+            const gameBoard = document.getElementById('gameBoard');
+            const roundCounter = document.getElementById('roundCounter');
+            const timerValue = document.getElementById('timerValue');
+            const startButton = document.getElementById('startButton');
+            const statusMessage = document.getElementById('statusMessage');
+            const pickedSymbols = document.getElementById('pickedSymbols');
+            const victoryModal = document.getElementById('victoryModal');
+            const gameConsole = document.getElementById('gameConsole');
+
+            // --- GAME STATE ---
+            let currentRoundIndex = 0;
+            let playerSequence = [];
+            let correctSequence = [];
+            let timerInterval;
+            let remainingTime;
+            let isGameActive = false;
+            let audioContext;
+
+            // --- AUDIO GENERATION ---
+            // Create a single AudioContext to be reused
+            function initAudio() {
+                if (!audioContext) {
+                    try {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    } catch(e) {
+                        console.error("Web Audio API is not supported in this browser");
+                    }
+                }
+            }
+
+            // Function to play a simple tone
+            function playSound(type) {
+                if (!audioContext) return;
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+                
+                if (type === 'success') {
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(880.0, audioContext.currentTime); // A5 note
+                } else if (type === 'fail') {
+                    oscillator.type = 'square';
+                    oscillator.frequency.setValueAtTime(110.0, audioContext.currentTime); // A2 note
+                } else if (type === 'click') {
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(440.0, audioContext.currentTime); // A4 note
+                    gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
+                } else if (type === 'victory') {
+                    // Ascending notes for victory
+                    const now = audioContext.currentTime;
+                    oscillator.type = 'triangle';
+                    oscillator.frequency.setValueAtTime(523.25, now); // C5
+                    gainNode.gain.setValueAtTime(0.3, now);
+                    setTimeout(() => {
+                        oscillator.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                    }, 100);
+                     setTimeout(() => {
+                        oscillator.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                    }, 200);
+                }
+
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.2);
+            }
+
+            // --- GAME LOGIC ---
+
+            // Main function to start or restart the game
+            function startGame() {
+                isGameActive = true;
+                currentRoundIndex = 0;
+                startButton.textContent = 'Restart';
+                victoryModal.classList.add('hidden');
+                initAudio(); // Initialize audio on first user interaction
+                startRound();
+            }
+            
+            // Function to set up and begin a round
+            function startRound() {
+                playerSequence = [];
+                updatePickedSymbols();
+                
+                const config = ROUNDS_CONFIG[currentRoundIndex];
+                roundCounter.textContent = `Round ${config.number}/${ROUNDS_CONFIG.length}`;
+                statusMessage.textContent = 'Enter the sequence...';
+                statusMessage.style.color = 'var(--text-color)';
+                
+                // 1. Select random symbols for the current round
+                const roundSymbols = selectRandomSymbols(config.symbols);
+
+                // 2. Determine the correct sequence based on REFERENCE_ORDER
+                correctSequence = [...roundSymbols].sort((a, b) => REFERENCE_ORDER.indexOf(a) - REFERENCE_ORDER.indexOf(b));
+
+                // 3. Shuffle symbols for display to randomize their positions
+                shuffleArray(roundSymbols);
+
+                // 4. Populate the game board
+                populateBoard(roundSymbols, config.gridCols);
+
+                // 5. Start the timer
+                startTimer(config.timer);
+            }
+
+            // Function to handle player clicking a symbol
+            function handleSymbolClick(symbol) {
+                if (!isGameActive || playerSequence.length >= correctSequence.length) return;
+
+                playSound('click');
+                playerSequence.push(symbol);
+                updatePickedSymbols();
+
+                // Check if the current partial sequence is correct
+                for (let i = 0; i < playerSequence.length; i++) {
+                    if (playerSequence[i] !== correctSequence[i]) {
+                        failGame('Incorrect Sequence');
+                        return;
+                    }
+                }
+                
+                // Check if the round is complete
+                if (playerSequence.length === correctSequence.length) {
+                    winRound();
+                }
+            }
+
+            // Function for winning a round
+            function winRound() {
+                isGameActive = false; // Temporarily disable board
+                clearInterval(timerInterval);
+                playSound('success');
+                statusMessage.textContent = 'Sequence Accepted';
+                statusMessage.style.color = 'var(--primary-color)';
+                document.body.classList.add('flash');
+                
+                setTimeout(() => document.body.classList.remove('flash'), 300);
+
+                currentRoundIndex++;
+                
+                // Check for overall victory
+                if (currentRoundIndex >= ROUNDS_CONFIG.length) {
+                    setTimeout(showVictory, 1000);
+                } else {
+                    // Proceed to the next round
+                    setTimeout(() => {
+                        isGameActive = true;
+                        startRound();
+                    }, 1500);
+                }
+            }
+            
+            // Function for failing the game (wrong order or time out)
+            function failGame(message) {
+                isGameActive = false;
+                clearInterval(timerInterval);
+                playSound('fail');
+                statusMessage.textContent = message;
+                statusMessage.style.color = 'var(--accent-color)';
+                gameBoard.classList.add('shake');
+                
+                // Disable all buttons to prevent further clicks
+                document.querySelectorAll('.symbol-button').forEach(btn => {
+                    btn.classList.add('disabled');
+                });
+
+                setTimeout(() => gameBoard.classList.remove('shake'), 500);
+
+                // Reset game after a delay
+                setTimeout(() => {
+                    currentRoundIndex = 0;
+                    statusMessage.textContent = 'System resetting. Try again.';
+                    playerSequence = [];
+                    updatePickedSymbols();
+                    populateBoard([], ROUNDS_CONFIG[0].gridCols, true); // Clear board and show disabled state
+                }, 2000);
+            }
+
+            // Function for showing the final victory screen
+            function showVictory() {
+                playSound('victory');
+                victoryModal.classList.remove('hidden');
+                // Reset game in the background so player can start again
+                isGameActive = false;
+                currentRoundIndex = 0;
+            }
+
+            // --- HELPER FUNCTIONS ---
+            
+            // Populate the game board with symbol buttons
+            function populateBoard(symbols, gridClass, isDisabled = false) {
+                gameBoard.innerHTML = '';
+                gameBoard.className = `grid gap-3 sm:gap-4 ${gridClass}`;
+                symbols.forEach(symbol => {
+                    const button = document.createElement('button');
+                    button.className = 'symbol-button text-4xl md:text-5xl p-4 rounded-lg focus:outline-none';
+                    if (isDisabled) {
+                        button.classList.add('disabled');
+                    }
+                    button.textContent = symbol;
+                    button.onclick = () => handleSymbolClick(symbol);
+                    gameBoard.appendChild(button);
+                });
+            }
+
+            // Select N unique random symbols from the master list
+            function selectRandomSymbols(count) {
+                const shuffled = [...REFERENCE_ORDER].sort(() => 0.5 - Math.random());
+                return shuffled.slice(0, count);
+            }
+
+            // Fisher-Yates shuffle algorithm
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+            
+            // Update the display showing the player's selected sequence
+            function updatePickedSymbols() {
+                pickedSymbols.textContent = playerSequence.join(' ');
+            }
+            
+            // Start and manage the round timer
+            function startTimer(duration) {
+                clearInterval(timerInterval);
+                remainingTime = duration;
+                timerValue.textContent = remainingTime;
+                
+                timerInterval = setInterval(() => {
+                    remainingTime--;
+                    timerValue.textContent = remainingTime;
+                    if (remainingTime <= 0) {
+                        clearInterval(timerInterval);
+                        failGame("Time Expired");
+                    }
+                }, 1000);
+            }
+
+            // Initial setup of the game board
+            function setupInitialState() {
+                populateBoard([], ROUNDS_CONFIG[0].gridCols, true);
+                statusMessage.textContent = 'Awaiting Activation';
+            }
+
+            // --- EVENT LISTENERS ---
+            startButton.addEventListener('click', startGame);
+            victoryModal.addEventListener('click', () => {
+                // Clicking victory screen allows restarting
+                startGame();
+            });
+
+            // Set the initial view when the page loads
+            setupInitialState();
+        });
+    </script>
+
+</body>
+</html>
+
+
+
+
