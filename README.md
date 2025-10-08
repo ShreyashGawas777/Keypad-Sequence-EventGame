@@ -143,14 +143,21 @@ Merging **cyberpunk data visualization** with **holographic UI principles.**
 ---
 
 ## 📁 Project Structure
-keypad-sequence/
-├── index.html # Main game file (all-in-one)
+
+├── index.html 
+
 ├── reference-guide.md # Printable symbol reference
+
 ├── /screenshots/
+
 │ ├── terminal-start.png
+
 │ ├── mission-active.png
+
 │ ├── victory-screen.png
+
 └── README.md
+
 
 ---
 
@@ -171,66 +178,69 @@ keypad-sequence/
 - Players see **“MISSION COMPLETE”** overlay  
 - Click **“BACK TO START”** for next participant  
 
+--- 
 
-🔮 Future Roadmap
-Phase 1: Enhanced Gameplay
-Difficulty Modes: Casual (90s) / Expert (30s)
+## 🔮 Future Roadmap
+**Phase 1: Enhanced Gameplay**
+- Difficulty Modes: Casual (90s) / Expert (30s)
 
-Leaderboard System (localStorage)
+- Leaderboard System (localStorage)
 
-Practice Mode (no timer)
+- Practice Mode (no timer)
 
-Hint System (highlight next symbol)
+- Hint System (highlight next symbol)
 
-Phase 2: Technical Upgrades
-PWA implementation (offline play)
+**Phase 2: Technical Upgrades**
+- PWA implementation (offline play)
 
-React migration (component-based)
+- React migration (component-based)
 
-Backend multiplayer & leaderboards
+- Backend multiplayer & leaderboards
 
-Analytics dashboard
+- Analytics dashboard
 
-Phase 3: Polish & Accessibility
-Sound toggle & theme switcher
+**Phase 3: Polish & Accessibility**
+- Sound toggle & theme switcher
 
-Screen reader support (ARIA, keyboard nav)
+- Screen reader support (ARIA, keyboard nav)
 
-Custom symbol upload support
+- Custom symbol upload support
 
-📸 Visual Showcase
-State	Description
-Idle	Glowing container with initialization prompt
-Active	Symbol grid + real-time countdown
-Success	Green pulse animation, sequence verified
-Failure	Red shake animation, error display
-Victory	Full-screen overlay + particle effects
+--- 
 
-🤝 Contributing
-Contributions welcome! Areas of interest:
+## 📸 Visual Showcase
+- State	Description
+- Idle	Glowing container with initialization prompt
+- Active	Symbol grid + real-time countdown
+- Success	Green pulse animation, sequence verified
+- Failure	Red shake animation, error display
+- Victory	Full-screen overlay + particle effects
 
-New symbol sets (Cyrillic, Asian, icons)
-
-Audio & accessibility improvements
-
-Performance optimizations
+---
 
 
-📄 License
-This project is open source under the MIT License.
+## 📄 License
+- This project is open source under the MIT License.
 
-🙏 Acknowledgments
-Inspiration: Keep Talking and Nobody Explodes by Steel Crate Games
+---
 
-Typography: Orbitron & Space Mono
+## 🙏 Acknowledgments
+- Inspiration: Keep Talking and Nobody Explodes by Steel Crate Games
 
-Styling: Tailwind CSS
+- Typography: Orbitron & Space Mono
 
-Design Influence: Cyberpunk UI/UX & Quantum Computing Interfaces
+- Styling: Tailwind CSS
 
-📬 Contact
-Developer: Shreyash Gawas
-Project Link: https://github.com/shreyashgawas777/Keypad-Sequence-EventGame
+- Design Influence: Cyberpunk UI/UX & Quantum Computing Interfaces
+
+---
+
+## 📬 Contact
+- Developer: Shreyash Gawas
+- linkedin : www.linkedin.com/in/shreyash-gawas-72973b28b
+- Project Link: https://github.com/shreyashgawas777/Keypad-Sequence-EventGame
+
+---
 
 <div align="center">
 ⚡ Built with passion for immersive web experiences ⚡
@@ -238,5 +248,6 @@ Project Link: https://github.com/shreyashgawas777/Keypad-Sequence-EventGame
 <img src="screenshots/terminal-start.png" width="220"/>
 <img src="screenshots/mission-active.png" width="220"/>
 <img src="screenshots/victory-screen.png" width="220"/>
+
 
 </div> ```
