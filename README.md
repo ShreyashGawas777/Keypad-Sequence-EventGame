@@ -245,9 +245,10 @@ Merging **cyberpunk data visualization** with **holographic UI principles.**
 <div align="center">
 ⚡ Built with passion for immersive web experiences ⚡
 <br>
-<img src="screenshots/terminal-start.png" width="220"/>
-<img src="screenshots/mission-active.png" width="220"/>
+<img src="screenshots/Terminal-start.png" width="220"/>
+<img src="screenshots/Mission-active.png" width="220"/>
 <img src="screenshots/victory-screen.png" width="220"/>
 
 
 </div> ```
+
